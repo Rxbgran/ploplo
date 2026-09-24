@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seguridad Multimedia · CVE, NVD y OWASP en el ecosistema de YouTube</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12142B;--paper:#EEF0F7;--v:#5B3DF5;--y:#FFD84A;--r:#F0384A;--g:#12B886;--rt:#FFDCE1;--gt:#D3F5E8;--vt:#E3DEFF}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;overflow:hidden}
+h1,h2,h3{font-family:'Bricolage Grotesque',Georgia,sans-serif;line-height:1.05}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--v);outline-offset:2px}
+#sl{position:fixed;inset:0 0 74px 0}
+.s{display:none;position:absolute;inset:0;overflow:auto;padding:36px clamp(16px,5vw,64px)}
+.s.on{display:block;animation:in .45s ease}
+@keyframes in{from{opacity:0;transform:translateY(14px)}}
+.w{max-width:1120px;margin:auto}
+h2{font-size:clamp(2rem,5vw,3.6rem);font-weight:800;margin-bottom:10px}
+.sub{max-width:640px;color:#3b4160;margin-bottom:24px;font-size:1.05rem}
+.box{background:#fff;border:2px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 var(--ink);padding:20px}
+.g{display:grid;gap:16px}.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.pill{display:inline-block;border:2px solid var(--ink);border-radius:99px;padding:4px 14px;font-weight:700;font-size:.85rem;background:var(--y)}
+.pill.r{background:var(--rt)}.pill.g{background:var(--gt)}.pill.v{background:var(--vt)}
+.sel{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:10px 16px;font-weight:700;transition:.15s}
+.sel:hover{transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--ink)}
+.sel.on{background:var(--v);color:#fff}
+ul{padding-left:1.1rem}li{margin:3px 0}
+.k{font-size:.78rem;font-weight:700;color:#5a6080;display:block;margin-top:10px}
+.ok{background:var(--gt);border:2px solid var(--g);border-radius:10px;padding:8px 12px;margin-top:10px}
+.bad{background:var(--rt);border:2px solid var(--r);border-radius:10px;padding:8px 12px;margin-top:10px}
+.note{background:var(--y);border:2px solid var(--ink);border-radius:12px;padding:10px 16px;margin-bottom:20px;font-size:.95rem}
+/* portada */
+.cover{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center;min-height:100%}
+.cover h1{font-size:clamp(2.8rem,8vw,6rem);font-weight:800;letter-spacing:-.03em}
+.cover h1 span{background:var(--v);color:#fff;padding:0 .15em;border-radius:10px;display:inline-block;transform:rotate(-2deg)}
+.cover p{margin:16px 0 8px;font-size:1.1rem;max-width:520px}
+.who{font-size:.88rem;color:#3b4160;margin-top:18px}
+.player{aspect-ratio:16/10;border:2px solid var(--ink);border-radius:18px;box-shadow:8px 8px 0 var(--ink);background:linear-gradient(135deg,var(--v),#2a1a9c);position:relative;overflow:hidden}
+.play{position:absolute;left:50%;top:44%;width:86px;height:86px;margin:-43px;border-radius:50%;background:var(--y);border:3px solid var(--ink);display:grid;place-items:center;font-size:2.2rem;animation:pu 2.4s infinite}
+@keyframes pu{50%{transform:scale(1.07)}}
+.mini{position:absolute;left:5%;right:5%;bottom:14%;height:8px;background:rgba(255,255,255,.3);border-radius:9px}
+.mini i{position:absolute;top:-6px;width:8px;height:20px;background:var(--r);border:2px solid #fff;border-radius:4px}
+.cap{position:absolute;left:5%;bottom:4%;color:#fff;font-size:.8rem;font-weight:700}
+.st{position:absolute;color:#fff;font-size:.72rem;font-weight:700;background:rgba(18,20,43,.55);padding:3px 9px;border-radius:99px}
+/* pipeline */
+.pipe{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.pipe .sel{flex:1 1 130px;text-align:left}
+.pipe .sel small{display:block;font-weight:400;opacity:.8}
+/* herramientas */
+.tools{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.tools .sel{font-family:'Bricolage Grotesque';font-size:1.5rem;padding:10px 26px}
+.big{font-family:'Bricolage Grotesque';font-size:1.6rem;font-weight:800;margin-bottom:8px}
+/* amenazas */
+.th{border-left:8px solid var(--r)}.th b{font-size:1.05rem}.th p{font-size:.92rem;color:#3b4160}
+.th .e{font-size:1.6rem}
+/* timeline clips */
+.trk{display:flex;gap:10px;align-items:stretch;margin-bottom:10px}
+.trk>b{width:54px;flex:none;font-size:.78rem;padding-top:14px;color:#5a6080}
+.clip{flex:1;text-align:left;border:2px solid var(--ink);border-radius:10px;padding:10px 14px;background:var(--rt);transition:.15s}
+.clip.a{background:var(--y)}.clip.b{background:var(--vt)}
+.clip small{display:block;opacity:.75}
+.clip.on{box-shadow:4px 4px 0 var(--ink);transform:translate(-2px,-2px);border-width:3px}
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin:14px 0}
+.nd{flex:1 1 130px;border:2px solid var(--ink);border-radius:10px;padding:8px 10px;font-size:.88rem;background:#fff;animation:in .4s both;animation-delay:calc(var(--i)*.15s)}
+.nd small{display:block;font-size:.7rem;font-weight:700;color:#5a6080}
+.nd.r{background:var(--rt)}.nd.m{background:var(--gt)}
+.ar{align-self:center;font-weight:800;color:var(--v)}
+.bar{height:10px;border:2px solid var(--ink);border-radius:9px;background:#fff;overflow:hidden;width:220px;display:inline-block;vertical-align:middle}
+.bar i{display:block;height:100%;background:var(--y)}
+/* mitigación */
+.mg h3{font-size:1.1rem;margin-bottom:8px}
+.mg div.c{display:flex;gap:8px;margin:6px 0;align-items:flex-start;font-size:.92rem}
+.mg .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--g);border:2px solid var(--ink);display:grid;place-items:center;font-weight:700;font-size:.78rem}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 22px;font-family:'Bricolage Grotesque';font-weight:800;font-size:clamp(1rem,2.4vw,1.5rem)}
+.flow span{border:2px solid var(--ink);border-radius:12px;padding:8px 16px;background:#fff}
+.flow span:last-child{background:var(--g)}
+a{color:var(--v);font-weight:700}
+/* barra reproductor */
+#pl{position:fixed;left:0;right:0;bottom:0;height:74px;background:var(--ink);color:#fff;display:flex;align-items:center;gap:12px;padding:0 clamp(12px,3vw,32px);z-index:9}
+#pl button{background:var(--y);color:var(--ink);border:0;border-radius:99px;font-weight:700;padding:9px 16px}
+#pl button.q{background:transparent;color:#fff;border:2px solid #fff;padding:7px 12px}
+#sc{flex:1;position:relative;height:34px;cursor:pointer}
+#sc:before{content:"";position:absolute;left:0;right:0;top:14px;height:6px;background:#3a3f66;border-radius:9px}
+#fill{position:absolute;left:0;top:14px;height:6px;background:var(--y);border-radius:9px;width:0}
+.tk{position:absolute;top:8px;width:14px;height:18px;margin-left:-2px;background:var(--r);border:2px solid #fff;border-radius:4px;padding:0}
+.tk.on{background:var(--y);transform:scaleY(1.3)}
+#ch{font-size:.85rem;min-width:140px;text-align:right;font-weight:700}
+#tm{font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:800px){.cover{grid-template-columns:1fr}#ch,#tm{display:none}.s{padding:24px 16px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<main id="sl">
+
+<section class="s"><div class="w cover"><div>
+<span class="pill">Paso 4 · Infografía interactiva</span>
+<h1 style="margin-top:14px">Seguridad <span>multimedia</span></h1>
+<p><b>CVE, NVD y OWASP Top Ten</b> aplicados al ecosistema de YouTube: activos, amenazas y vulnerabilidades en una infraestructura de contenido audiovisual.</p>
+<button class="sel on" onclick="go(1)">Empezar el recorrido</button>
+<p class="who">Jeremy Alejandro Balanta Corrales · Ingeniería Multimedia – UNAD<br>Seguridad informática aplicada a productos multimedia</p></div>
+<div class="player" role="img" aria-label="Reproductor de video con cuatro marcas rojas que representan los cuatro hallazgos de vulnerabilidades"><span class="st" style="left:5%;top:6%">🛡️ Modo análisis</span><div class="play">▶</div>
+<div class="mini"><i style="left:18%"></i><i style="left:39%"></i><i style="left:61%"></i><i style="left:83%"></i></div><span class="cap">4 hallazgos en la línea de tiempo</span></div></div></section>
+
+<section class="s"><div class="w"><h2>¿Por qué YouTube?</h2>
+<p class="sub">Es una plataforma multimedia a gran escala: los usuarios cargan, almacenan, procesan, distribuyen y reproducen video. En cada etapa hay activos que proteger.</p>
+<div class="pipe" id="pipe"></div><div class="box" id="pd"></div></div></section>
+
+<section class="s"><div class="w"><h2>Tres referencias, un mismo objetivo</h2>
+<p class="sub">Se complementan: una nombra la vulnerabilidad, otra la detalla y otra orienta la prevención.</p>
+<div class="tools" id="tools"></div><div class="box" id="td"></div></div></section>
+
+<section class="s"><div class="w"><h2>Amenazas del entorno multimedia</h2>
+<p class="sub">Identificadas a partir del inventario de activos del caso.</p>
+<div class="g g3" id="thr"></div></div></section>
+
+<section class="s"><div class="w"><h2>Cuatro hallazgos</h2>
+<div class="note"><b>Ojo:</b> son componentes de terceros que integran contenido de YouTube. No son vulnerabilidades de la infraestructura interna de YouTube.</div>
+<p class="sub" style="margin-bottom:14px">Toca un clip para ver el detalle y la cadena activo → mitigación.</p>
+<div class="trk"><b>Pista CVE</b><button class="clip" data-v="0"></button><button class="clip" data-v="1"></button></div>
+<div class="trk"><b>Pista NVD</b><button class="clip a" data-v="2"></button><button class="clip b" data-v="3"></button></div>
+<div class="box" id="vd" style="margin-top:14px"></div></div></section>
+
+<section class="s"><div class="w"><h2>OWASP Top Ten aplicado al caso</h2>
+<p class="sub">Dos categorías que explican lo encontrado.</p><div class="g g2" id="ow"></div></div></section>
+
+<section class="s"><div class="w mg"><h2>Doce estrategias de mitigación</h2>
+<p class="sub">Agrupadas según lo que protegen.</p><div class="g g2" id="mit"></div></div></section>
+
+<section class="s"><div class="w"><h2>La seguridad también hace parte de la experiencia multimedia</h2>
+<p class="sub" style="max-width:820px">Proteger una plataforma multimedia no es solo proteger los videos: también hay que proteger las cuentas, APIs, aplicaciones, datos, componentes y servicios que permiten administrar, procesar y distribuir el contenido.</p>
+<div class="flow"><span>CVE identifica</span>→<span>NVD informa</span>→<span>OWASP orienta</span>→<span>La seguridad reduce riesgos</span></div>
+<div class="box"><b>Fuentes</b><ul><li><a href="https://www.cve.org/" target="_blank" rel="noopener">CVE – Common Vulnerabilities and Exposures</a></li><li><a href="https://nvd.nist.gov/" target="_blank" rel="noopener">NVD – National Vulnerability Database</a></li><li><a href="https://owasp.org/www-project-top-ten/" target="_blank" rel="noopener">OWASP Top 10</a></li></ul>
+<p class="who" style="margin-top:10px">Jeremy Alejandro Balanta Corrales · Ingeniería Multimedia – UNAD</p></div></div></section>
+</main>
+
+<div id="pl"><button id="pp" aria-label="Presentar automáticamente">▶ Presentar</button><button class="q" id="pv" aria-label="Anterior">←</button><button class="q" id="nx" aria-label="Siguiente">→</button>
+<div id="sc" role="group" aria-label="Capítulos"><div id="fill"></div></div><span id="tm">0:00</span><span id="ch"></span></div>
+
+<script>
+const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
+const T=['Portada','El caso: YouTube','CVE · NVD · OWASP','Amenazas','Hallazgos','OWASP aplicado','Mitigación','Conclusión'],D=[20,35,40,30,60,35,25,20],N=D.length,TOT=D.reduce((a,b)=>a+b),S=D.map((_,i)=>D.slice(0,i).reduce((a,b)=>a+b,0));
+const f=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+let t=0,play=false,cur=-1;
+$('#sc').insertAdjacentHTML('beforeend',T.map((n,i)=>`<button class="tk" style="left:${S[i]/TOT*100}%" title="${f(S[i])} ${n}" aria-label="${n}" data-c="${i}"></button>`).join(''));
+function upd(){let i=0;while(i<N-1&&t>=S[i+1])i++;
+if(i!==cur){cur=i;$$('.s').forEach((e,j)=>{e.classList.toggle('on',j===i);if(j===i)e.scrollTop=0});$$('.tk').forEach((e,j)=>e.classList.toggle('on',j===i));$('#ch').textContent=T[i]}
+$('#fill').style.width=t/TOT*100+'%';$('#tm').textContent=f(t)+' / '+f(TOT)}
+const go=i=>{t=S[Math.max(0,Math.min(N-1,i))];upd()};
+setInterval(()=>{if(play){t+=.25;if(t>=TOT){t=TOT-.01;tog()}upd()}},250);
+function tog(){play=!play;$('#pp').textContent=play?'❚❚ Pausa':'▶ Presentar'}
+$('#pp').onclick=tog;$('#pv').onclick=()=>go(cur-1);$('#nx').onclick=()=>go(cur+1);
+$('#sc').onclick=e=>{const c=e.target.closest('.tk');if(c)go(+c.dataset.c);else{const r=$('#sc').getBoundingClientRect();t=(e.clientX-r.left)/r.width*TOT;upd()}};
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);if(e.key===' '&&e.target===document.body){e.preventDefault();tog()}});
+
+/* caso */
+const P=[['Carga','El usuario sube su video','Videos · Cuentas de usuario · Credenciales','Acceso no autorizado y robo de cuentas'],
+['Procesamiento','Servidores y APIs transforman el video','Servidores · APIs · Metadatos','Ataques contra APIs e inyección en títulos y descripciones'],
+['Almacenamiento','Se conserva el contenido','Sistemas de almacenamiento · Bases de datos · Datos personales','Pérdida, alteración o acceso no autorizado'],
+['Distribución','Se entrega a los usuarios','Sistemas de distribución · Servidores','Denegación de servicio e interrupción del servicio'],
+['Reproducción','El usuario ve y comenta','Aplicaciones móviles · Comentarios','Explotación de vulnerabilidades y contenido malicioso']];
+$('#pipe').innerHTML=P.map((p,i)=>`<button class="sel" data-p="${i}">${i+1}. ${p[0]}<small>${p[1]}</small></button>`).join('');
+const pick=i=>{$$('#pipe .sel').forEach((b,j)=>b.classList.toggle('on',i===j));const p=P[i];$('#pd').innerHTML=`<div class="big">${p[0]}</div><span class="k">Activos involucrados</span><div class="ok" style="background:var(--vt);border-color:var(--v)">${p[2]}</div><span class="k">Riesgo asociado</span><div class="bad">${p[3]}</div>`};
+$('#pipe').onclick=e=>{const b=e.target.closest('.sel');if(b)pick(+b.dataset.p)};pick(0);
+
+/* herramientas */
+const H=[['CVE','El nombre','Common Vulnerabilities and Exposures','Identificadores únicos para vulnerabilidades de seguridad conocidas.','Referenciar y organizar vulnerabilidades de forma estandarizada.',['Identificar vulnerabilidades','Comunicarlas con un mismo código','Relacionarlas con productos y componentes afectados'],'Ejemplo: CVE-2026-1825'],
+['NVD','La ficha','National Vulnerability Database','Base de datos con información complementaria: descripción, productos afectados, puntuaciones CVSS y clasificaciones CWE.','Consultar el detalle de cada vulnerabilidad y evaluarla.',['Revisar productos afectados','Analizar puntuaciones CVSS','Consultar clasificaciones CWE','Apoyar la gestión de vulnerabilidades'],'Ejemplo: CVE-2017-1000224 → CVSS 3.0 de 6.5'],
+['OWASP','La guía','OWASP Top Ten','Referencia de seguridad para aplicaciones web con las categorías de riesgo más frecuentes e importantes.','Orientar la prevención de los riesgos más comunes.',['Clasificar riesgos (A01, A06…)','Guiar medidas de prevención','Priorizar qué revisar primero'],'Ejemplo: A01 Broken Access Control']];
+$('#tools').innerHTML=H.map((h,i)=>`<button class="sel" data-h="${i}">${h[0]}</button>`).join('');
+const tool=i=>{$$('#tools .sel').forEach((b,j)=>b.classList.toggle('on',i===j));const h=H[i];$('#td').innerHTML=`<span class="pill v">${h[1]}</span><div class="big" style="margin-top:8px">${h[2]}</div><p>${h[3]}</p><span class="k">Objetivo</span><p>${h[4]}</p><span class="k">Utilidad</span><ul>${h[5].map(u=>`<li>${u}</li>`).join('')}</ul><div class="ok">${h[6]}</div>`};
+$('#tools').onclick=e=>{const b=e.target.closest('.sel');if(b)tool(+b.dataset.h)};tool(0);
+
+/* amenazas */
+$('#thr').innerHTML=[['🔐','Acceso no autorizado','Robo de credenciales por phishing o reutilización; toma de cuentas.'],['🕵️','Robo de información','Un fallo puede exponer datos personales de las cuentas.'],['🔌','Ataques contra APIs','Controles de acceso mal hechos permiten consultar o modificar recursos.'],['💻','Inyección de contenido malicioso','Entradas sin sanitizar generan XSS.'],['🚨','Denegación de servicio','Exceso de solicitudes que afecta la disponibilidad.'],['⚠️','Componentes vulnerables','Dependencias desactualizadas como punto de entrada.']].map(x=>`<div class="box th"><div class="e">${x[0]}</div><b>${x[1]}</b><p>${x[2]}</p></div>`).join('');
+
+/* hallazgos */
+const V=[['CVE-2026-1825','Stored XSS','Show YouTube video · WordPress','Versiones hasta 1.1. Sanitización insuficiente de atributos: un atacante autenticado (colaborador o superior) podría introducir scripts que se ejecutan cuando otro usuario visita la página.',['Aplicación web que integra videos','Inyección de código malicioso','Stored XSS','Ejecución de scripts al visitar la página','Actualizar + validar, sanitizar y escapar entradas']],
+['CVE-2025-31008','Stored XSS · CWE-79','YouTube Embed · WordPress','Versiones hasta 5.3.1. Neutralización incorrecta de entradas durante la generación de páginas web.',['Aplicación web','Ejecución de JavaScript no autorizado','Stored XSS (CWE-79)','Código malicioso en páginas web','Actualizar + validar, sanitizar y escapar']],
+['CVE-2017-1000224','CSRF','Plugin de YouTube para WordPress','Un atacante no autenticado podía modificar configuraciones del plugin.',['Configuraciones de la aplicación','Solicitud falsificada','CSRF','Modificación no autorizada','Protección CSRF + tokens + actualizar']],
+['CVE-2024-11354','Control de acceso insuficiente','Ultimate YouTube Video & Shorts Player With Vimeo','Versiones hasta 3.3. Sin comprobación de capacidades al eliminar listas de reproducción: un suscriptor o superior podía eliminarlas.',['Listas de reproducción','Uso indebido de privilegios','Control de acceso insuficiente (A01)','Eliminación no autorizada','Verificar permisos + autorización + actualizar']]];
+const L=['Activo','Amenaza','Vulnerabilidad','Impacto','Mitigación'],KC=['','r','r','r','m'];
+$$('.clip').forEach(c=>{const v=V[c.dataset.v];c.innerHTML=`<b>${v[0]}</b><small>${v[1]}</small>`});
+function vuln(i){$$('.clip').forEach(c=>c.classList.toggle('on',+c.dataset.v===i));const v=V[i];
+$('#vd').innerHTML=`<div class="big">${v[0]} · ${v[1]}</div><b>${v[2]}</b><p style="margin-top:6px">${v[3]}</p>${i===2?'<p style="margin-top:8px"><b>CVSS 3.0: 6.5 (impacto medio)</b> <span class="bar"><i style="width:65%"></i></span></p>':''}<div class="chain">${v[4].map((x,k)=>(k?'<span class="ar">→</span>':'')+`<div class="nd ${KC[k]}" style="--i:${k}"><small>${L[k]}</small>${x}</div>`).join('')}</div>`}
+$$('.clip').forEach(c=>c.onclick=()=>vuln(+c.dataset.v));vuln(0);
+
+/* OWASP */
+$('#ow').innerHTML=[['A01','Broken Access Control','Una aplicación no restringe correctamente las acciones que puede realizar cada usuario: puede haber divulgación, modificación o destrucción no autorizada de información.','Cuentas, videos, listas de reproducción, información personal y configuraciones.','Acceso o modificación no autorizada.',['Autorización en el servidor','Mínimo privilegio','Verificar permisos en cada solicitud','No confiar solo en el cliente'],'Evidencia: CVE-2024-11354'],
+['A06','Vulnerable and Outdated Components','Se usan componentes vulnerables, obsoletos o de estado desconocido, o no se revisan sus versiones periódicamente.','Aplicación web, cuentas, información y contenido multimedia.','Explotación de una vulnerabilidad conocida.',['Inventario de componentes','Control de versiones','Consultar CVE y NVD','Actualizar o retirar los que no tienen soporte'],'Evidencia: los cuatro hallazgos']].map(o=>`<div class="box"><span class="pill v">${o[0]}</span><div class="big" style="margin-top:8px">${o[1]}</div><p>${o[2]}</p><span class="k">Activos afectados</span><p>${o[3]}</p><div class="bad"><b>Amenaza:</b> ${o[4]}</div><div class="ok"><b>Mitigación</b><ul>${o[5].map(m=>`<li>${m}</li>`).join('')}</ul></div><p class="k">${o[6]}</p></div>`).join('');
+
+/* mitigación */
+let n=0;$('#mit').innerHTML=[['Componentes',['Mantener actualizados los componentes','Consultar CVE y NVD periódicamente','Política de actualización de dependencias','Inventario de componentes y versiones']],['Acceso',['Autenticación y autorización robustas','Protección contra CSRF','Principio de mínimo privilegio']],['Entradas y datos',['Validar, sanitizar y escapar entradas','Proteger los datos personales']],['Detección y respuesta',['Registro y monitoreo','Pruebas de seguridad antes de desplegar','Respuesta ante incidentes']]].map(g=>`<div class="box"><h3>${g[0]}</h3>${g[1].map(x=>`<div class="c"><span class="n">${++n}</span><span>${x}</span></div>`).join('')}</div>`).join('');
+upd();
+</script></body></html>
